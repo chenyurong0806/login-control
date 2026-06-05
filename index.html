@@ -234,7 +234,7 @@
             margin-top: 15px;
             font-size: 12px;
             color: #ff4a4a;
-            font-family: monospace;
+            font-family: PingFang SC;
             min-height: 18px;
             text-align: left;
         }
@@ -302,11 +302,9 @@
             const msg = document.getElementById('msg');
 
             if(!u || !p) {
-                msg.innerText = "[-] ERROR: INPUT FIELD CANNOT BE EMPTY.";
+                msg.innerText = "请输入用户名与密码！"
                 return;
             }
-
-            msg.innerText = "[*] CONNECTING TO NEURAL NETWORK...";
 
             const urlParams = new URLSearchParams(window.location.search);
             const from = urlParams.get('from') || 'https://chenyurong.qzz.io';
@@ -321,17 +319,17 @@
                 const data = await res.json();
                 if (data.success) {
                     msg.style.color = "var(--ark-cyan)";
-                    msg.innerText = "[+] ACCESS GRANTED. REDIRECTING...";
+                    msg.innerText = "正在与神经网络连接......";
                     setTimeout(() => {
                         window.location.href = from;
                     }, 800);
                 } else {
                     msg.style.color = "#ff4a4a";
-                    msg.innerText = `[-] ACCESS DENIED: ${data.message || 'INVALID CREDENTIALS'}`;
+                    msg.innerText = `访问被拒绝！`;
                 }
             } catch (err) {
                 msg.style.color = "#ff4a4a";
-                msg.innerText = "[-] ERROR: SERVER UNRESPONSIVE.";
+                msg.innerText = "用户名或密码错误！";
             }
         }
     </script>
