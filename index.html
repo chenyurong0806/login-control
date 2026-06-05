@@ -319,7 +319,7 @@
                 const data = await res.json();
                 if (data.success) {
                     msg.style.color = "var(--ark-cyan)";
-                    msg.innerText = "[+] ACCESS GRANTED. REDIRECTING...";
+                    msg.innerText = "正在与神经网络连接......";
                     setTimeout(() => {
                         window.location.href = from;
                     }, 800);
