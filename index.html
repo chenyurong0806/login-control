@@ -6,31 +6,35 @@
 <title>PRTS - 统一身份认证登录</title>
 <style>
 :root {
-    --bg-color: #121212;
-    --panel-bg: rgba(20, 20, 20, 0.85);
-    --border-color: #3a3a3a;
-    --text-main: #e2e2e2;
-    --text-muted: #7a7a7a;
-    --ark-orange: #ffaa00;
-    --ark-cyan: #00d2ff;
+    --bg-color:#121212;
+    --panel-bg:rgba(20,20,20,0.85);
+    --border-color:#3a3a3a;
+    --text-main:#e2e2e2;
+    --text-muted:#7a7a7a;
+    --ark-orange:#ffaa00;
+    --ark-cyan:#00d2ff;
 }
-* { box-sizing: border-box; margin:0; padding:0; font-family:"PingFang SC",sans-serif; }
-body {
+*{box-sizing:border-box;margin:0;padding:0;font-family:"PingFang SC",sans-serif;}
+body{
     background-color: var(--bg-color);
-    display: flex; justify-content: center; align-items: center;
-    height: 100vh; color: var(--text-main);
+    display:flex;justify-content:center;align-items:center;height:100vh;color:var(--text-main);
 }
-.login-container {
-    background: var(--panel-bg); border:1px solid var(--border-color);
-    padding:40px; width:400px; backdrop-filter: blur(10px); position: relative;
+.login-container{
+    background:var(--panel-bg);border:1px solid var(--border-color);
+    padding:40px;width:400px;backdrop-filter:blur(10px);position:relative;
 }
-.login-header h2 { font-size: 22px; font-weight: 400; }
-.input-group { margin-bottom: 25px; }
-.input-group input { width:100%; padding:12px; background: rgba(0,0,0,0.4); border:1px solid var(--border-color); color:var(--text-main); }
-.input-group input:focus { border-color: var(--ark-orange); box-shadow:0 0 8px rgba(255,170,0,0.2); outline:none; }
-.btn-submit { width:100%; padding:14px; background:#2a2a2a; border:1px solid #444; color:var(--text-main); cursor:pointer; transition:0.2s; }
-.btn-submit:hover { background:var(--ark-orange); color:#000; border-color:var(--ark-orange); box-shadow:0 0 15px rgba(255,170,0,0.4);}
-#msg { margin-top:15px; font-size:12px; color:#ff4a4a; min-height:18px; }
+.login-header h2{font-size:22px;font-weight:400;}
+.input-group{margin-bottom:25px;}
+.input-group input{
+    width:100%;padding:12px;background: rgba(0,0,0,0.4);border:1px solid var(--border-color);color:var(--text-main);
+}
+.input-group input:focus{border-color:var(--ark-orange);box-shadow:0 0 8px rgba(255,170,0,0.2);outline:none;}
+.btn-submit{
+    width:100%;padding:14px;background:#2a2a2a;border:1px solid #444;color:var(--text-main);
+    cursor:pointer;transition:0.2s;
+}
+.btn-submit:hover{background:var(--ark-orange);color:#000;border-color:var(--ark-orange);box-shadow:0 0 15px rgba(255,170,0,0.4);}
+#msg{margin-top:15px;font-size:12px;color:#ff4a4a;min-height:18px;}
 </style>
 </head>
 <body>
@@ -62,26 +66,28 @@ async function doLogin(){
     const p = document.getElementById('password').value.trim();
     const r = document.getElementById('remember').checked;
     const msg = document.getElementById('msg');
-    if(!u || !p){ msg.innerText="请输入用户名与密码！"; return; }
+    if(!u||!p){msg.innerText="请输入用户名与密码！";return;}
 
+    // 获取跳转来源
     const from = new URLSearchParams(window.location.search).get('from') || 'https://pan.chenyurong.qzz.io';
 
-    try {
-        const res = await fetch('/api/login', {
+    try{
+        const res = await fetch('https://login.chenyurong.qzz.io/api/login',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({username:u,password:p,remember:r})
+            body:JSON.stringify({username:u,password:p,remember:r}),
+            credentials:'include' // 🔑 允许浏览器保存跨子域 Cookie
         });
         const data = await res.json();
         if(data.success){
             msg.style.color='var(--ark-cyan)';
             msg.innerText='登录成功，正在跳转...';
-            setTimeout(()=>{ window.location.href = from; }, 500);
+            setTimeout(()=>{window.location.href=from;},500);
         }else{
             msg.style.color='#ff4a4a';
-            msg.innerText=data.message || '访问被拒绝！';
+            msg.innerText=data.message||'访问被拒绝！';
         }
-    }catch(err){
+    }catch(e){
         msg.style.color='#ff4a4a';
         msg.innerText='服务器错误！';
     }
