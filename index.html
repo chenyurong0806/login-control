@@ -319,9 +319,20 @@
                 const data = await res.json();
                 if (data.success) {
                     msg.style.color = "var(--ark-cyan)";
-                    msg.innerText = "正在与神经网络连接......";
+                    msg.innerText = "[+] ACCESS GRANTED. REDIRECTING...";
+                    
+                    // 获取传递过来的来源地址
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let fromUrl = urlParams.get('from');
+                    
+                    // 如果没有来源，或者来源还是登录页自己，就强制跳转到主页，防止原地刷新
+                    if (!fromUrl || fromUrl.includes('login.chenyurong.qzz.io')) {
+                        fromUrl = 'https://chenyurong.qzz.io';
+                    }
+                    
                     setTimeout(() => {
-                        window.location.href = from;
+                        // 使用 replace 替换当前历史记录，强制浏览器跳转
+                        window.location.replace(fromUrl);
                     }, 800);
                 } else {
                     msg.style.color = "#ff4a4a";
