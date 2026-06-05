@@ -1,97 +1,337 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRTS - 统一身份认证登录</title>
-<style>
-:root {
-    --bg-color:#121212;
-    --panel-bg:rgba(20,20,20,0.85);
-    --border-color:#3a3a3a;
-    --text-main:#e2e2e2;
-    --text-muted:#7a7a7a;
-    --ark-orange:#ffaa00;
-    --ark-cyan:#00d2ff;
-}
-*{box-sizing:border-box;margin:0;padding:0;font-family:"PingFang SC",sans-serif;}
-body{
-    background-color: var(--bg-color);
-    display:flex;justify-content:center;align-items:center;height:100vh;color:var(--text-main);
-}
-.login-container{
-    background:var(--panel-bg);border:1px solid var(--border-color);
-    padding:40px;width:400px;backdrop-filter:blur(10px);position:relative;
-}
-.login-header h2{font-size:22px;font-weight:400;}
-.input-group{margin-bottom:25px;}
-.input-group input{
-    width:100%;padding:12px;background: rgba(0,0,0,0.4);border:1px solid var(--border-color);color:var(--text-main);
-}
-.input-group input:focus{border-color:var(--ark-orange);box-shadow:0 0 8px rgba(255,170,0,0.2);outline:none;}
-.btn-submit{
-    width:100%;padding:14px;background:#2a2a2a;border:1px solid #444;color:var(--text-main);
-    cursor:pointer;transition:0.2s;
-}
-.btn-submit:hover{background:var(--ark-orange);color:#000;border-color:var(--ark-orange);box-shadow:0 0 15px rgba(255,170,0,0.4);}
-#msg{margin-top:15px;font-size:12px;color:#ff4a4a;min-height:18px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRTS - 统一身份认证登录</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: rgba(20, 20, 20, 0.85);
+            --border-color: #3a3a3a;
+            --text-main: #e2e2e2;
+            --text-muted: #7a7a7a;
+            --ark-orange: #ffaa00; /* 明日方舟经典警示黄 */
+            --ark-cyan: #00d2ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            letter-spacing: 1px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            /* 使用科幻感极强的斜线网格背景 */
+            background-image: 
+                linear-gradient(45deg, rgba(255,255,255,0.02) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.02) 75%),
+                linear-gradient(45deg, rgba(255,255,255,0.02) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.02) 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        /* 装饰背景线条 */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            width: 90%;
+            height: 80%;
+            border-left: 1px solid rgba(255, 255, 255, 0.03);
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            pointer-events: none;
+        }
+
+        /* 登录主卡片 */
+        .login-container {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            width: 400px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 方舟风格裁剪角角效果 */
+        .login-container::before {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            border-width: 15px 15px 0 0;
+            border-style: solid;
+            border-color: var(--ark-orange) transparent;
+        }
+
+        /* 装饰编号 */
+        .login-container::after {
+            content: "SYSTEM LOGIN";
+            position: absolute;
+            bottom: -25px;
+            right: 0;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* 头部设计 */
+        .login-header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            position: relative;
+        }
+
+        .login-header h2 {
+            font-size: 22px;
+            font-weight: 400;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-header h2 span {
+            color: var(--ark-orange);
+            font-weight: 700;
+        }
+
+        .login-header .subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 5px;
+            font-family: monospace;
+        }
+
+        /* 表单区域 */
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .input-group input[type="text"], 
+        .input-group input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        /* 输入框激活状态：方舟经典的明黄高亮 */
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--ark-orange);
+            box-shadow: 0 0 8px rgba(255, 170, 0, 0.2);
+        }
+
+        /* 记住登录状态复选框 */
+        .remember-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-group input {
+            display: none;
+        }
+
+        .custom-checkbox {
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--border-color);
+            margin-right: 8px;
+            position: relative;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .remember-group input:checked + .custom-checkbox {
+            background: var(--ark-orange);
+            border-color: var(--ark-orange);
+        }
+
+        .remember-group input:checked + .custom-checkbox::after {
+            content: "";
+            position: absolute;
+            left: 4px;
+            top: 1px;
+            width: 3px;
+            height: 7px;
+            border: solid #121212;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .remember-group:hover color {
+            color: var(--text-main);
+        }
+
+        /* 战术登录按钮 */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--ark-orange);
+        }
+
+        .btn-submit:hover {
+            background: var(--ark-orange);
+            color: #000;
+            border-color: var(--ark-orange);
+            box-shadow: 0 0 15px rgba(255, 170, 0, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.99);
+        }
+
+        /* 错误提示框 */
+        #msg {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #ff4a4a;
+            font-family: PingFang SC;
+            min-height: 18px;
+            text-align: left;
+        }
+
+        /* 装饰点缀 */
+        .deco-dots {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 3px;
+        }
+        .deco-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--border-color);
+        }
+        .deco-dot.active {
+            background: var(--ark-orange);
+        }
+    </style>
 </head>
 <body>
-<div class="login-container">
-    <div class="login-header">
-        <h2>PRTS <span>ACCESS</span></h2>
-        <div class="subtitle">IDENTIFICATION REQUIRED</div>
-    </div>
-    <div>
-        <div class="input-group">
-            <label>User Name</label>
-            <input type="text" id="username" placeholder="请输入用户名">
+
+    <div class="login-container">
+        <div class="deco-dots">
+            <div class="deco-dot"></div>
+            <div class="deco-dot active"></div>
+            <div class="deco-dot"></div>
         </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="password" placeholder="请输入密码">
+
+        <div class="login-header">
+            <h2>PRTS <span>ACCESS</span></h2>
+            <div class="subtitle">IDENTIFICATION REQUIRED // 身份验证</div>
         </div>
-        <label class="remember-group">
-            <input type="checkbox" id="remember" checked> 保持登录状态
-        </label>
-        <button class="btn-submit" onclick="doLogin()">START</button>
-        <div id="msg"></div>
+
+        <div>
+            <div class="input-group">
+                <label for="username">User Name</label>
+                <input type="text" id="username" autocomplete="off" placeholder="请输入用户名">
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="请输入密码">
+            </div>
+
+            <label class="remember-group" for="remember">
+                <input type="checkbox" id="remember" checked>
+                <div class="custom-checkbox"></div>
+                <span>保持登录状态</span>
+            </label>
+
+            <button class="btn-submit" onclick="doLogin()">START // 进入系统</button>
+            
+            <div id="msg"></div>
+        </div>
     </div>
-</div>
 
-<script>
-async function doLogin(){
-    const u = document.getElementById('username').value.trim();
-    const p = document.getElementById('password').value.trim();
-    const r = document.getElementById('remember').checked;
-    const msg = document.getElementById('msg');
-    if(!u||!p){msg.innerText="请输入用户名与密码！";return;}
+    <script>
+        async function doLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const r = document.getElementById('remember').checked;
+            const msg = document.getElementById('msg');
 
-    // 获取跳转来源
-    const from = new URLSearchParams(window.location.search).get('from') || 'https://pan.chenyurong.qzz.io';
+            if(!u || !p) {
+                msg.innerText = "请输入用户名与密码！"
+                return;
+            }
 
-    try{
-        const res = await fetch('https://login.chenyurong.qzz.io/api/login',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({username:u,password:p,remember:r}),
-            credentials:'include' // 🔑 允许浏览器保存跨子域 Cookie
-        });
-        const data = await res.json();
-        if(data.success){
-            msg.style.color='var(--ark-cyan)';
-            msg.innerText='登录成功，正在跳转...';
-            setTimeout(()=>{window.location.href=from;},500);
-        }else{
-            msg.style.color='#ff4a4a';
-            msg.innerText=data.message||'访问被拒绝！';
+            const urlParams = new URLSearchParams(window.location.search);
+            const from = urlParams.get('from') || 'https://chenyurong.qzz.io';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p, remember: r })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    msg.style.color = "var(--ark-cyan)";
+                    msg.innerText = "正在与神经网络连接......";
+                    setTimeout(() => {
+                        window.location.href = from;
+                    }, 800);
+                } else {
+                    msg.style.color = "#ff4a4a";
+                    msg.innerText = `访问被拒绝！`;
+                }
+            } catch (err) {
+                msg.style.color = "#ff4a4a";
+                msg.innerText = "用户名或密码错误！";
+            }
         }
-    }catch(e){
-        msg.style.color='#ff4a4a';
-        msg.innerText='服务器错误！';
-    }
-}
-</script>
+    </script>
 </body>
 </html>
