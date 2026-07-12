@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>账号中心</title>
+        <title>登录 - Orange Accounts</title>
         <style>
             :root {
                 --bg: #f0f4f9;
@@ -53,15 +53,10 @@
             }
 
             .brand-mark {
-                width: 20px;
-                height: 20px;
-                border-radius: 6px;
-                object-fit: cover;
-                background: #ff8a00;
+                width: 24px;
+                height: 24px;
                 display: grid;
-                place-items: center;
-                color: #fff;
-                font-weight: 700
+                place-items: center
             }
 
             .card {
@@ -90,17 +85,18 @@
             }
 
             .site-logo {
-                width: 46px;
-                height: 46px;
-                border-radius: 12px;
-                object-fit: cover;
+                width: 50px;
+                height: 50px;
                 margin-bottom: 22px;
-                background: #ff8a00;
                 display: grid;
-                place-items: center;
-                color: #fff;
-                font-size: 24px;
-                font-weight: 700
+                place-items: center
+            }
+
+            .orange-icon {
+                width: 100%;
+                height: 100%;
+                display: block;
+                filter: drop-shadow(0 2px 2px rgba(255,122,0,.18))
             }
 
             h1 {
@@ -475,12 +471,48 @@
     <body>
         <div class="shell">
             <div class="top-brand">
-                <div class="brand-mark" id="topMark">橙</div>
+                <div class="brand-mark" id="topMark">
+                    <svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="orangeBody" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFB52B"/>
+                                <stop offset="1" stop-color="#FF7A00"/>
+                            </linearGradient>
+                            <linearGradient id="orangeLeaf" x1="34" y1="5" x2="49" y2="20" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#68C65A"/>
+                                <stop offset="1" stop-color="#2E9B45"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="31" cy="35" r="21" fill="url(#orangeBody)"/>
+                        <path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+                        <path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeaf)"/>
+                        <path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7"/>
+                    </svg>
+                </div>
                 <span id="topText">账号登录</span>
             </div>
             <main class="card">
                 <section class="left">
-                    <div class="site-logo" id="siteLogo">橙</div>
+                    <div class="site-logo" id="siteLogo">
+                        <svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="orangeBody" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#FFB52B"/>
+                                    <stop offset="1" stop-color="#FF7A00"/>
+                                </linearGradient>
+                                <linearGradient id="orangeLeaf" x1="34" y1="5" x2="49" y2="20" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#68C65A"/>
+                                    <stop offset="1" stop-color="#2E9B45"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="31" cy="35" r="21" fill="url(#orangeBody)"/>
+                            <path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+                            <path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeaf)"/>
+                            <path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7"/>
+                        </svg>
+                    </div>
                     <h1 id="title">登录</h1>
                     <p class="subtitle" id="subtitle">使用您的账号继续</p>
                     <button class="user-chip" id="userChip" type="button" onclick="showStep('login-id')">
@@ -661,6 +693,7 @@
             } catch {}
             const siteName = (qs.get('site') || derivedSite).slice(0, 60);
             const siteIcon = qs.get('icon') || derivedIcon;
+            const orangeIcon = `<svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="orangeBody" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#FFB52B"/><stop offset="1" stop-color="#FF7A00"/></linearGradient><linearGradient id="orangeLeaf" x1="34" y1="5" x2="49" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#68C65A"/><stop offset="1" stop-color="#2E9B45"/></linearGradient></defs><circle cx="31" cy="35" r="21" fill="url(#orangeBody)"/><path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4" stroke-linecap="round" opacity=".85"/><path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeaf)"/><path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3" stroke-linecap="round"/><circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7"/></svg>`;
             const text = (id, v) => document.getElementById(id).textContent = v;
             text('topText', `登录到 ${siteName}`);
             text('subtitle', `使用您的账号继续访问 ${siteName}`);
@@ -673,8 +706,7 @@
                     img.referrerPolicy = 'no-referrer';
                     img.style = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
                     img.onerror = () => {
-                        img.remove();
-                        el.textContent = '橙'
+                        el.innerHTML = orangeIcon
                     }
                     ;
                     el.textContent = '';
