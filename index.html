@@ -1,1157 +1,934 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>登录 - Orange Accounts</title>
-    <style>
-        :root {
-            --bg: #f0f4f9;
-            --card: #fff;
-            --text: #1f1f1f;
-            --muted: #444746;
-            --line: #c4c7c5;
-            --primary: #0b57d0;
-            --primary-hover: #0842a0;
-            --danger: #b3261e;
-            --success: #137333;
-            --hover: #f5f8fd;
-            --shadow: 0 2px 8px rgba(60, 64, 67, .12)
-        }
-
-        * {
-            box-sizing: border-box
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Arial, "Microsoft YaHei", sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px
-        }
-
-        button,
-        input {
-            font: inherit
-        }
-
-        .shell {
-            width: min(1040px, 100%)
-        }
-
-        .top-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0 0 18px 16px;
-            font-size: 14px;
-            color: var(--muted)
-        }
-
-        .brand-mark {
-            width: 24px;
-            height: 24px;
-            display: grid;
-            place-items: center
-        }
-
-        .card {
-            background: var(--card);
-            border-radius: 28px;
-            min-height: 420px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            overflow: visible;
-            box-shadow: 0 1px 2px rgba(60, 64, 67, .08)
-        }
-
-        .left,
-        .right {
-            padding: 48px
-        }
-
-        .left {
-            padding-right: 28px
-        }
-
-        .right {
-            padding-left: 28px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center
-        }
-
-        .site-logo {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 22px;
-            display: grid;
-            place-items: center
-        }
-
-        .orange-icon {
-            width: 100%;
-            height: 100%;
-            display: block;
-            filter: drop-shadow(0 2px 2px rgba(255, 122, 0, .18))
-        }
-
-        h1 {
-            font-size: 42px;
-            line-height: 1.15;
-            font-weight: 400;
-            margin: 0 0 18px
-        }
-
-        .subtitle {
-            font-size: 16px;
-            line-height: 1.5;
-            margin: 0;
-            color: var(--text)
-        }
-
-        .user-chip {
-            margin-top: 18px;
-            display: none;
-            align-items: center;
-            gap: 9px;
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            padding: 7px 12px;
-            width: max-content;
-            max-width: 100%;
-            cursor: pointer;
-            background: #fff
-        }
-
-        .user-chip:hover {
-            background: #f8f9fa
-        }
-
-        .avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #7a8b99;
-            color: #fff;
-            display: grid;
-            place-items: center;
-            font-size: 12px
-        }
-
-        .chip-text {
-            max-width: 240px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 14px
-        }
-
-        .step {
-            display: none;
-            min-height: 324px;
-            flex-direction: column;
-            justify-content: space-between
-        }
-
-        .step.active {
-            display: flex
-        }
-
-        .step>div:first-child {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center
-        }
-
-        .field {
-            position: relative;
-            margin-bottom: 20px
-        }
-
-        .field input {
-            width: 100%;
-            height: 56px;
-            border: 1px solid #747775;
-            border-radius: 4px;
-            padding: 16px 14px 8px;
-            outline: none;
-            background: #fff;
-            color: var(--text)
-        }
-
-        .field input:focus {
-            border-color: var(--primary);
-            box-shadow: inset 0 0 0 1px var(--primary)
-        }
-
-        .field label {
-            position: absolute;
-            left: 12px;
-            top: 18px;
-            color: var(--muted);
-            background: #fff;
-            padding: 0 4px;
-            pointer-events: none;
-            transition: .15s
-        }
-
-        .field input:focus+label,
-        .field input:not(:placeholder-shown)+label {
-            top: -8px;
-            font-size: 12px;
-            color: var(--primary)
-        }
-
-        .field.error input {
-            border-color: var(--danger);
-            box-shadow: inset 0 0 0 1px var(--danger)
-        }
-
-        .field.error label {
-            color: var(--danger)
-        }
-
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1.25fr 1fr;
-            gap: 12px
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 24px;
-            gap: 14px
-        }
-
-        .btn {
-            border: 0;
-            border-radius: 999px;
-            padding: 10px 22px;
-            font-weight: 600;
-            cursor: pointer
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: #fff
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover)
-        }
-
-        .btn-text {
-            background: transparent;
-            color: var(--primary);
-            padding-inline: 12px
-        }
-
-        .btn-text:hover {
-            background: var(--hover)
-        }
-
-        .message {
-            min-height: 18px;
-            font-size: 13px;
-            margin-top: -8px;
-            margin-bottom: 10px;
-            color: var(--danger)
-        }
-
-        .message.success {
-            color: var(--success)
-        }
-
-        .hint {
-            font-size: 12px;
-            color: var(--muted);
-            margin: -12px 4px 16px
-        }
-
-        .check {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            margin-top: 2px
-        }
-
-        .check input {
-            accent-color: var(--primary);
-            width: 17px;
-            height: 17px
-        }
-
-        .account-list {
-            width: 100%;
-            border-top: 1px solid var(--line);
-        }
-
-        .account-item,
-        .other-account {
-            width: 100%;
-            min-height: 68px;
-
-            display: flex;
-            align-items: center;
-            gap: 16px;
-
-            padding: 10px 12px;
-
-            border: 0;
-            border-bottom: 1px solid var(--line);
-
-            background: #fff;
-            color: var(--text);
-
-            text-align: left;
-            cursor: pointer;
-
-            transition: background 0.15s ease;
-        }
-
-        .account-item:hover,
-        .other-account:hover {
-            background: #f8fafd;
-        }
-
-        .account-item:focus-visible,
-        .other-account:focus-visible {
-            outline: 2px solid var(--primary);
-            outline-offset: -2px;
-            background: #f8fafd;
-        }
-
-        .other-account {
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .other-account span:last-child {
-            line-height: 1.25;
-        }
-
-        .account-avatar {
-            width: 36px;
-            height: 36px;
-            flex: 0 0 36px;
-
-            display: grid;
-            place-items: center;
-
-            border-radius: 50%;
-
-            background: #78909c;
-            color: #fff;
-
-            font-size: 15px;
-            font-weight: 500;
-            line-height: 1;
-        }
-
-
-        .account-avatar.other {
-            background: #eef1f4;
-            color: #5f6368;
-
-            font-size: 22px;
-            font-weight: 400;
-        }
-
-        .account-main {
-            min-width: 0;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 2px;
-        }
-
-        .account-name {
-            overflow: hidden;
-
-            color: var(--text);
-
-            font-size: 16px;
-            font-weight: 500;
-            line-height: 1.25;
-
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .account-id {
-            overflow: hidden;
-
-            color: var(--muted);
-
-            font-size: 14px;
-            line-height: 1.25;
-
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .select-wrap {
-            position: relative;
-            margin-bottom: 20px
-        }
-
-        .select-button {
-            height: 56px;
-            width: 100%;
-            background: #fff;
-            border: 1px solid #747775;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 14px;
-            cursor: pointer;
-            color: var(--text)
-        }
-
-        .select-button.open {
-            border-color: var(--primary);
-            box-shadow: inset 0 0 0 1px var(--primary)
-        }
-
-        .select-label {
-            position: absolute;
-            left: 12px;
-            top: -8px;
-            background: #fff;
-            padding: 0 4px;
-            font-size: 12px;
-            color: var(--primary);
-            z-index: 2
-        }
-
-        .arrow {
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-bottom: 6px solid var(--primary);
-            transition: .15s
-        }
-
-        .select-button:not(.open) .arrow {
-            transform: rotate(180deg)
-        }
-
-        .select-menu {
-            display: none;
-            position: absolute;
-            top: 62px;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border-radius: 4px;
-            box-shadow: var(--shadow);
-            max-height: 280px;
-            overflow: auto;
-            z-index: 20;
-            padding: 6px 0
-        }
-
-        .select-menu.open {
-            display: block
-        }
-
-        .option {
-            padding: 14px 16px;
-            cursor: pointer
-        }
-
-        .option:hover,
-        .option.selected {
-            background: #e7eaed
-        }
-
-        .select-spacer {
-            margin-top: 4px
-        }
-
-        @media(max-width: 760px) {
-            body {
-                padding: 0;
-                background: #fff;
-                align-items: flex-start
-            }
-
-            .shell {
-                width: 100%
-            }
-
-            .top-brand {
-                margin: 18px 24px
-            }
-
-            .card {
-                grid-template-columns: 1fr;
-                border-radius: 0;
-                box-shadow: none;
-                min-height: auto
-            }
-
-            .left,
-            .right {
-                padding: 28px 24px
-            }
-
-            .left {
-                padding-bottom: 8px
-            }
-
-            .right {
-                padding-top: 18px
-            }
-
-            h1 {
-                font-size: 34px
-            }
-
-            .step {
-                min-height: 330px
-            }
-
-            .row {
-                grid-template-columns: 1fr 1fr
-            }
-
-            .row .field:first-child {
-                grid-column: 1/-1
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="/Static/css/Global.css" />
-    <link rel="stylesheet" href="/Web/css/Global.css" />
-    <link rel="stylesheet" href="/Web/css/SoruxGPT.css" />
-</head>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登录 - Orange Accounts</title>
+  <style>
+    :root {
+      --bg: #f0f4f9;
+      --card: #ffffff;
+      --text: #1f1f1f;
+      --muted: #444746;
+      --line: #c4c7c5;
+      --primary: #0b57d0;
+      --primary-hover: #0842a0;
+      --danger: #b3261e;
+      --success: #137333;
+      --hover: #f7f9fc;
+      --shadow: 0 1px 2px rgba(60, 64, 67, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    .shell { width: min(1040px, 100%); }
+
+    .top-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px 16px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 24px;
+    }
+
+    .orange-icon {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 2px 2px rgba(255, 122, 0, .18));
+    }
+
+    .card {
+      min-height: 420px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .left, .right { padding: 48px; }
+    .left { padding-right: 28px; }
+    .right {
+      padding-left: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .site-logo {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 22px;
+      display: grid;
+      place-items: center;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: 42px;
+      line-height: 1.15;
+      font-weight: 400;
+      letter-spacing: -.5px;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .user-chip {
+      margin-top: 18px;
+      display: none;
+      align-items: center;
+      gap: 9px;
+      width: max-content;
+      max-width: 100%;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .user-chip:hover { background: #f8f9fa; }
+
+    .avatar,
+    .account-avatar {
+      border-radius: 50%;
+      background: #78909c;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .avatar {
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+      flex: 0 0 24px;
+    }
+
+    .chip-text {
+      max-width: 240px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .step {
+      display: none;
+      min-height: 324px;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .step.active { display: flex; }
+
+    .step > div:first-child {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .field { position: relative; margin-bottom: 20px; }
+
+    .field input {
+      width: 100%;
+      height: 56px;
+      padding: 16px 14px 8px;
+      border: 1px solid #747775;
+      border-radius: 4px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .field input:focus {
+      border-color: var(--primary);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+
+    .field label {
+      position: absolute;
+      left: 12px;
+      top: 18px;
+      padding: 0 4px;
+      color: var(--muted);
+      background: #fff;
+      pointer-events: none;
+      transition: .15s;
+    }
+
+    .field input:focus + label,
+    .field input:not(:placeholder-shown) + label {
+      top: -8px;
+      font-size: 12px;
+      color: var(--primary);
+    }
+
+    .field.error input {
+      border-color: var(--danger);
+      box-shadow: inset 0 0 0 1px var(--danger);
+    }
+    .field.error label { color: var(--danger); }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      gap: 12px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      padding: 10px 22px;
+      border: 0;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn:disabled { opacity: .65; cursor: default; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-text { padding-inline: 12px; background: transparent; color: var(--primary); }
+    .btn-text:hover:not(:disabled) { background: #f5f8fd; }
+
+    .message {
+      min-height: 18px;
+      margin: -8px 0 10px;
+      font-size: 13px;
+      color: var(--danger);
+    }
+    .message.success { color: var(--success); }
+
+    .hint { margin: -12px 4px 16px; font-size: 12px; color: var(--muted); }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 2px;
+      font-size: 14px;
+    }
+    .check input { width: 17px; height: 17px; accent-color: var(--primary); }
+
+    /* Google 风格账号选择列表 */
+    .account-list {
+      width: 100%;
+      border-top: 1px solid var(--line);
+    }
+
+    .account-item,
+    .other-account {
+      width: 100%;
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 12px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+
+    .account-item:hover,
+    .other-account:hover { background: var(--hover); }
+
+    .account-item:focus-visible,
+    .other-account:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
+      background: var(--hover);
+    }
+
+    .account-avatar {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .account-avatar.other {
+      background: #eef1f4;
+      color: #5f6368;
+      font-size: 21px;
+      font-weight: 400;
+    }
+
+    .account-main {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .account-name,
+    .account-id {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.25;
+    }
+
+    .account-name { font-size: 16px; font-weight: 500; color: var(--text); }
+    .account-id { font-size: 14px; color: var(--muted); }
+
+    .other-account {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .select-wrap { position: relative; margin-bottom: 20px; }
+
+    .select-button {
+      width: 100%;
+      height: 56px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #747775;
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .select-button.open {
+      border-color: var(--primary);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+
+    .select-label {
+      position: absolute;
+      left: 12px;
+      top: -8px;
+      z-index: 2;
+      padding: 0 4px;
+      background: #fff;
+      font-size: 12px;
+      color: var(--primary);
+    }
+
+    .arrow {
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 6px solid var(--primary);
+      transition: .15s;
+    }
+    .select-button:not(.open) .arrow { transform: rotate(180deg); }
+
+    .select-menu {
+      display: none;
+      position: absolute;
+      top: 62px;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      max-height: 280px;
+      overflow: auto;
+      padding: 6px 0;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(60, 64, 67, .12);
+    }
+    .select-menu.open { display: block; }
+
+    .option { padding: 14px 16px; cursor: pointer; }
+    .option:hover, .option.selected { background: #e7eaed; }
+    .select-spacer { margin-top: 4px; }
+
+    @media (max-width: 760px) {
+      body { padding: 0; align-items: flex-start; background: #fff; }
+      .shell { width: 100%; }
+      .top-brand { margin: 18px 24px; }
+      .card { grid-template-columns: 1fr; min-height: auto; border-radius: 0; box-shadow: none; }
+      .left, .right { padding: 28px 24px; }
+      .left { padding-bottom: 8px; }
+      .right { padding-top: 18px; }
+      h1 { font-size: 34px; }
+      .step { min-height: 330px; }
+      .row { grid-template-columns: 1fr 1fr; }
+      .row .field:first-child { grid-column: 1 / -1; }
+    }
+  </style>
+<link rel="stylesheet" href="/Static/css/Global.css"/><link rel="stylesheet" href="/Web/css/Global.css"/><link rel="stylesheet" href="/Web/css/SoruxGPT.css"/></head>
 <body>
-    <div class="shell">
-        <div class="top-brand">
-            <div class="brand-mark" id="topMark">
-                <svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true">
-                    <defs>
-                        <linearGradient id="orangeBody" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#FFB52B" />
-                            <stop offset="1" stop-color="#FF7A00" />
-                        </linearGradient>
-                        <linearGradient id="orangeLeaf" x1="34" y1="5" x2="49" y2="20" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#68C65A" />
-                            <stop offset="1" stop-color="#2E9B45" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="31" cy="35" r="21" fill="url(#orangeBody)" />
-                    <path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4" stroke-linecap="round"
-                        opacity=".85" />
-                    <path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeaf)" />
-                    <path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3"
-                        stroke-linecap="round" />
-                    <circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7" />
-                </svg>
-            </div>
-            <span id="topText">账号登录</span>
-        </div>
-        <main class="card">
-            <section class="left">
-                <div class="site-logo" id="siteLogo">
-                    <svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true">
-                        <defs>
-                            <linearGradient id="orangeBody" x1="12" y1="10" x2="52" y2="56"
-                                gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#FFB52B" />
-                                <stop offset="1" stop-color="#FF7A00" />
-                            </linearGradient>
-                            <linearGradient id="orangeLeaf" x1="34" y1="5" x2="49" y2="20"
-                                gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#68C65A" />
-                                <stop offset="1" stop-color="#2E9B45" />
-                            </linearGradient>
-                        </defs>
-                        <circle cx="31" cy="35" r="21" fill="url(#orangeBody)" />
-                        <path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4"
-                            stroke-linecap="round" opacity=".85" />
-                        <path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeaf)" />
-                        <path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3"
-                            stroke-linecap="round" />
-                        <circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7" />
-                    </svg>
-                </div>
-                <h1 id="title">登录</h1>
-                <p class="subtitle" id="subtitle">使用您的账号继续</p>
-                <button class="user-chip" id="userChip" type="button" onclick="showStep('login-id')">
-                    <span class="avatar" id="chipAvatar">用</span>
-                    <span class="chip-text" id="chipText"></span>
-                </button>
-            </section>
-            <section class="right">
-                <div class="step active" id="account-chooser">
-                    <div>
-                        <div class="account-list" id="accountList"></div>
-                        <div class="other-account" onclick="showStep('login-id')">
-                            <span class="avatar">＋</span>
-                            <strong>使用其他账号</strong>
-                        </div>
-                    </div>
-                </div>
-                <div class="step" id="login-id">
-                    <div>
-                        <div class="field">
-                            <input id="loginUsername" placeholder=" " autocomplete="username">
-                            <label>用户名</label>
-                        </div>
-                        <div class="message" id="loginIdMsg"></div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-text" onclick="startRegister()">创建账号</button>
-                        <button class="btn btn-primary" onclick="nextLogin()">下一步</button>
-                    </div>
-                </div>
-                <div class="step" id="login-pass">
-                    <div>
-                        <div class="field">
-                            <input id="loginPassword" type="password" placeholder=" " autocomplete="current-password">
-                            <label>输入密码</label>
-                        </div>
-                        <div class="message" id="loginPassMsg"></div>
-                        <label class="check">
-                            <input type="checkbox" onchange="togglePassword('loginPassword',this.checked)">显示密码
-                        </label>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-text" onclick="startForgot()">忘记密码？</button>
-                        <button class="btn btn-primary" onclick="login()">登录</button>
-                    </div>
-                </div>
-                <div class="step" id="reg-name">
-                    <div>
-                        <div class="field">
-                            <input id="regName" placeholder=" ">
-                            <label>姓名</label>
-                        </div>
-                        <div class="message" id="regNameMsg"></div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-text" onclick="showStep('login-id')">返回登录</button>
-                        <button class="btn btn-primary" onclick="regNameNext()">下一步</button>
-                    </div>
-                </div>
-                <div class="step" id="reg-birthday">
-                    <div>
-                        <div class="row">
-                            <div class="field">
-                                <input id="regYear" inputmode="numeric" maxlength="4" placeholder=" ">
-                                <label>年</label>
-                            </div>
-                            <div class="select-wrap">
-                                <span class="select-label">月</span>
-                                <button class="select-button" id="monthButton" type="button"
-                                    onclick="toggleSelect('month')">
-                                    <span id="monthText"></span>
-                                    <span class="arrow"></span>
-                                </button>
-                                <div class="select-menu" id="monthMenu"></div>
-                            </div>
-                            <div class="field">
-                                <input id="regDay" inputmode="numeric" maxlength="2" placeholder=" ">
-                                <label>日</label>
-                            </div>
-                        </div>
-                        <div class="select-wrap select-spacer">
-                            <span class="select-label">性别</span>
-                            <button class="select-button" id="genderButton" type="button"
-                                onclick="toggleSelect('gender')">
-                                <span id="genderText">请选择</span>
-                                <span class="arrow"></span>
-                            </button>
-                            <div class="select-menu" id="genderMenu"></div>
-                        </div>
-                        <div class="message" id="birthdayMsg"></div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-text" onclick="showStep('reg-name')">上一步</button>
-                        <button class="btn btn-primary" onclick="birthdayNext()">下一步</button>
-                    </div>
-                </div>
-                <div class="step" id="reg-credentials">
-                    <div>
-                        <div class="field">
-                            <input id="regUsername" placeholder=" ">
-                            <label>用户名</label>
-                        </div>
-                        <div class="hint">可使用字母、数字、下划线和句点</div>
-                        <div class="field">
-                            <input id="regPassword" type="password" placeholder=" ">
-                            <label>密码</label>
-                        </div>
-                        <div class="field">
-                            <input id="regInvite" placeholder=" ">
-                            <label>邀请码</label>
-                        </div>
-                        <div class="message" id="regCredMsg"></div>
-                        <label class="check">
-                            <input type="checkbox" onchange="togglePassword('regPassword',this.checked)">显示密码
-                        </label>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-text" onclick="showStep('reg-birthday')">上一步</button>
-                        <button class="btn btn-primary" onclick="registerAccount()">注册</button>
-                    </div>
-                </div>
-                <div class="step" id="forgot-verify">
-                    <div>
-                        <div class="field">
-                            <input id="forgotUsername" placeholder=" ">
-                            <label>用户名</label>
-                        </div>
-                        <div class="field">
-                            <input id="forgotName" placeholder=" ">
-                            <label>姓名</label>
-                        </div>
-                        <div class="message" id="forgotVerifyMsg"></div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-text" onclick="showStep('login-id')">返回登录</button>
-                        <button class="btn btn-primary" onclick="verifyForgot()">下一步</button>
-                    </div>
-                </div>
-                <div class="step" id="forgot-reset">
-                    <div>
-                        <div class="field">
-                            <input id="newPassword" type="password" placeholder=" ">
-                            <label>新密码</label>
-                        </div>
-                        <div class="field">
-                            <input id="confirmPassword" type="password" placeholder=" ">
-                            <label>确认新密码</label>
-                        </div>
-                        <div class="message" id="forgotResetMsg"></div>
-                        <label class="check">
-                            <input type="checkbox" onchange="toggleReset(this.checked)">显示密码
-                        </label>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-text" onclick="showStep('forgot-verify')">上一步</button>
-                        <button class="btn btn-primary" onclick="resetPassword()">确认修改</button>
-                    </div>
-                </div>
-            </section>
-        </main>
+  <div class="shell">
+    <div class="top-brand">
+      <div class="brand-mark" id="topMark">
+        <svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="orangeBodyTop" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFB52B"/><stop offset="1" stop-color="#FF7A00"/>
+            </linearGradient>
+            <linearGradient id="orangeLeafTop" x1="34" y1="5" x2="49" y2="20" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#68C65A"/><stop offset="1" stop-color="#2E9B45"/>
+            </linearGradient>
+          </defs>
+          <circle cx="31" cy="35" r="21" fill="url(#orangeBodyTop)"/>
+          <path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+          <path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeafTop)"/>
+          <path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7"/>
+        </svg>
+      </div>
+      <span id="topText">账号登录</span>
     </div>
-    <script>
-        const state = {
-            username: '',
-            month: '',
-            gender: '',
-            resetUser: ''
-        };
-        const qs = new URLSearchParams(location.search);
-        const returnUrl = qs.get('from') || '';
-        let derivedSite = '子网站'
-            , derivedIcon = '';
-        try {
-            if (returnUrl) {
-                const u = new URL(returnUrl);
-                derivedSite = u.hostname;
-                derivedIcon = u.origin + '/favicon.ico'
-            }
-        } catch { }
-        const siteName = (qs.get('site') || derivedSite).slice(0, 60);
-        const siteIcon = qs.get('icon') || derivedIcon;
-        const orangeIcon = `<svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="orangeBody" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#FFB52B"/><stop offset="1" stop-color="#FF7A00"/></linearGradient><linearGradient id="orangeLeaf" x1="34" y1="5" x2="49" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#68C65A"/><stop offset="1" stop-color="#2E9B45"/></linearGradient></defs><circle cx="31" cy="35" r="21" fill="url(#orangeBody)"/><path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4" stroke-linecap="round" opacity=".85"/><path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeaf)"/><path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3" stroke-linecap="round"/><circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7"/></svg>`;
-        const text = (id, v) => document.getElementById(id).textContent = v;
-        text('topText', `登录到 ${siteName}`);
-        text('subtitle', `使用您的账号继续访问 ${siteName}`);
-        if (siteIcon && /^https?:\/\//i.test(siteIcon)) {
-            ['siteLogo', 'topMark'].forEach(id => {
-                const el = document.getElementById(id)
-                    , img = document.createElement('img');
-                img.src = siteIcon;
-                img.alt = siteName;
-                img.referrerPolicy = 'no-referrer';
-                img.style = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
-                img.onerror = () => {
-                    el.innerHTML = orangeIcon
-                }
-                    ;
-                el.textContent = '';
-                el.appendChild(img)
-            }
-            )
-        }
-        const steps = {
-            'account-chooser': ['选择账号', `继续访问 ${siteName}`, false],
-            'login-id': ['登录', `使用您的账号继续访问 ${siteName}`, false],
-            'login-pass': ['欢迎回来', '', true],
-            'reg-name': ['创建 Orange 账号', '输入您的姓名', false],
-            'reg-birthday': ['基本信息', '输入您的生日和性别', false],
-            'reg-credentials': ['选择登录方式', '设置您的用户名、密码和邀请码', false],
-            'forgot-verify': ['找回密码', '输入用户名和姓名验证身份', false],
-            'forgot-reset': ['重置密码', '设置一个新密码', false]
-        };
-        function showStep(id) {
-            document.querySelectorAll('.step').forEach(x => x.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            const [t, s, b] = steps[id];
-            text('title', t);
-            text('subtitle', s);
-            document.getElementById('subtitle').style.display = s ? 'block' : 'none';
-            document.getElementById('userChip').style.display = b ? 'flex' : 'none';
-            clearMessages();
-            if (id === 'login-id')
-                setTimeout(() => loginUsername.focus(), 50)
-        }
-        function clearMessages() {
-            document.querySelectorAll('.message').forEach(x => {
-                x.textContent = '';
-                x.classList.remove('success')
-            }
-            );
-            document.querySelectorAll('.field').forEach(x => x.classList.remove('error'))
-        }
-        function err(inputId, msgId, msg) {
-            document.getElementById(inputId)?.closest('.field')?.classList.add('error');
-            text(msgId, msg)
-        }
-        function ok(msgId, msg) {
-            const el = document.getElementById(msgId);
-            el.textContent = msg;
-            el.classList.add('success')
-        }
-        function setBusy(button, busy, label = '处理中…') {
-            if (!button)
-                return;
-            button.disabled = busy;
-            if (busy) {
-                button.dataset.oldText = button.textContent;
-                button.textContent = label
-            } else if (button.dataset.oldText) {
-                button.textContent = button.dataset.oldText
-            }
-        }
-        async function api(path, body) {
-            const r = await fetch(path, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify(body)
-            });
-            let data = {};
-            try {
-                data = await r.json()
-            } catch { }
-            if (!r.ok || data.success === false)
-                throw new Error(data.message || `请求失败（${r.status}）`);
-            return data
-        }
-        function togglePassword(id, on) {
-            document.getElementById(id).type = on ? 'text' : 'password'
-        }
-        function toggleReset(on) {
-            togglePassword('newPassword', on);
-            togglePassword('confirmPassword', on)
-        }
-        function accounts() {
-            try {
-                return JSON.parse(localStorage.getItem('orange_account_history') || '[]')
-            } catch {
-                return []
-            }
-        }
-        function saveAccount(a) {
-            const data = accounts().filter(x => x.username !== a.username);
-            data.unshift({
-                username: a.username,
-                name: a.name || a.username
-            });
-            localStorage.setItem('orange_account_history', JSON.stringify(data.slice(0, 8)))
-        }
-        function renderAccounts() {
-            const list = document.getElementById('accountList')
-                , data = accounts();
-            list.innerHTML = '';
-            if (!data.length) {
-                showStep('login-id');
-                return
-            }
-            data.forEach(a => {
-                const d = document.createElement('div');
-                d.className = 'account-item';
-                d.innerHTML = `<span class="avatar">${escapeHtml((a.name || a.username).slice(0, 1) || '用')}</span><div class="account-main"><div class="account-name">${escapeHtml(a.name || a.username)}</div><div class="account-id">${escapeHtml(a.username)}</div></div>`;
-                d.onclick = () => {
-                    loginUsername.value = a.username;
-                    state.username = a.username;
-                    setChip(a);
-                    showStep('login-pass')
-                }
-                    ;
-                list.appendChild(d)
-            }
-            )
-        }
-        function escapeHtml(s) {
-            return String(s).replace(/[&<>'"]/g, c => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                "'": '&#39;',
-                '"': '&quot;'
-            }[c]))
-        }
-        function setChip(a) {
-            text('chipText', a.username);
-            text('chipAvatar', (a.name || a.username).slice(0, 1))
-        }
-        function nextLogin() {
-            const u = loginUsername.value.trim();
-            if (!u)
-                return err('loginUsername', 'loginIdMsg', '请输入用户名');
-            state.username = u;
-            const a = accounts().find(x => x.username === u);
-            setChip(a || {
-                name: u,
-                username: u
-            });
-            showStep('login-pass')
-        }
-        async function login() {
-            const p = loginPassword.value
-                , button = (document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null);
-            if (!p)
-                return err('loginPassword', 'loginPassMsg', '请输入密码');
-            setBusy(button, true, '正在登录…');
-            try {
-                const data = await api('/api/login', {
-                    username: state.username,
-                    password: p,
-                    remember: true
-                });
-                saveAccount({
-                    username: state.username,
-                    name: data.name || data.nickname || state.username
-                });
-                ok('loginPassMsg', '登录成功，正在跳转…');
-                setTimeout(() => {
-                    location.href = (returnUrl && /^https?:\/\//i.test(returnUrl)) ? returnUrl : '/'
-                }
-                    , 500)
-            } catch (e) {
-                err('loginPassword', 'loginPassMsg', e.message)
-            } finally {
-                setBusy(button, false)
-            }
-        }
-        function startRegister() {
-            regName.value = '';
-            showStep('reg-name')
-        }
-        function regNameNext() {
-            if (!regName.value.trim())
-                return err('regName', 'regNameMsg', '请输入姓名');
-            showStep('reg-birthday')
-        }
-        function closeSelects() {
-            ['month', 'gender'].forEach(k => {
-                document.getElementById(k + 'Button').classList.remove('open');
-                document.getElementById(k + 'Menu').classList.remove('open')
-            }
-            )
-        }
-        function toggleSelect(kind) {
-            const button = document.getElementById(kind + 'Button')
-                , menu = document.getElementById(kind + 'Menu')
-                , willOpen = !menu.classList.contains('open');
-            closeSelects();
-            if (willOpen) {
-                button.classList.add('open');
-                menu.classList.add('open')
-            }
-        }
-        const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
-        monthNames.forEach((name, index) => {
-            const o = document.createElement('div');
-            o.className = 'option';
-            o.textContent = name;
-            o.onclick = () => {
-                state.month = index + 1;
-                text('monthText', name);
-                monthMenu.querySelectorAll('.option').forEach(x => x.classList.remove('selected'));
-                o.classList.add('selected');
-                closeSelects()
-            }
-                ;
-            monthMenu.appendChild(o)
-        }
-        );
-        [['male', '男性'], ['female', '女性'], ['custom', '自定义'], ['none', '不愿透露']].forEach(([value, label]) => {
-            const o = document.createElement('div');
-            o.className = 'option';
-            o.textContent = label;
-            o.onclick = () => {
-                state.gender = value;
-                text('genderText', label);
-                genderMenu.querySelectorAll('.option').forEach(x => x.classList.remove('selected'));
-                o.classList.add('selected');
-                closeSelects()
-            }
-                ;
-            genderMenu.appendChild(o)
-        }
-        );
-        document.addEventListener('click', e => {
-            if (!e.target.closest('.select-wrap'))
-                closeSelects()
-        }
-        );
-        function birthdayNext() {
-            const y = +regYear.value
-                , d = +regDay.value;
-            if (!/^\d{4}$/.test(regYear.value) || y < 1900 || y > new Date().getFullYear())
-                return err('regYear', 'birthdayMsg', '请输入有效年份');
-            if (!state.month)
-                return text('birthdayMsg', '请选择月份');
-            const max = new Date(y, state.month, 0).getDate();
-            if (d < 1 || d > max)
-                return err('regDay', 'birthdayMsg', '请输入有效日期');
-            if (!state.gender)
-                return text('birthdayMsg', '请选择性别');
-            showStep('reg-credentials')
-        }
-        async function registerAccount() {
-            const name = regName.value.trim()
-                , u = regUsername.value.trim()
-                , p = regPassword.value
-                , code = regInvite.value.trim()
-                , button = (document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null);
-            if (!/^[A-Za-z0-9._]{3,32}$/.test(u))
-                return err('regUsername', 'regCredMsg', '用户名需为 3–32 位字母、数字、下划线或句点');
-            if (p.length < 8)
-                return err('regPassword', 'regCredMsg', '密码至少需要 8 个字符');
-            if (!code)
-                return err('regInvite', 'regCredMsg', '请输入邀请码');
-            setBusy(button, true, '正在注册…');
-            try {
-                await api('/api/register', {
-                    name,
-                    username: u,
-                    password: p,
-                    invite_code: code,
-                    birthday: `${regYear.value}-${String(state.month).padStart(2, '0')}-${String(regDay.value).padStart(2, '0')}`,
-                    gender: state.gender
-                });
-                saveAccount({
-                    name,
-                    username: u
-                });
-                ok('regCredMsg', '注册成功，正在进入登录…');
-                setTimeout(() => {
-                    loginUsername.value = u;
-                    state.username = u;
-                    setChip({
-                        name,
-                        username: u
-                    });
-                    showStep('login-pass')
-                }
-                    , 600)
-            } catch (e) {
-                err(e.message.includes('用户') ? 'regUsername' : 'regInvite', 'regCredMsg', e.message)
-            } finally {
-                setBusy(button, false)
-            }
-        }
-        function startForgot() {
-            forgotUsername.value = state.username;
-            forgotName.value = '';
-            showStep('forgot-verify')
-        }
-        async function verifyForgot() {
-            const u = forgotUsername.value.trim()
-                , n = forgotName.value.trim()
-                , button = (document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null);
-            if (!u)
-                return err('forgotUsername', 'forgotVerifyMsg', '请输入用户名');
-            if (!n)
-                return err('forgotName', 'forgotVerifyMsg', '请输入姓名');
-            setBusy(button, true, '正在验证…');
-            try {
-                await api('/api/password/verify', {
-                    username: u,
-                    name: n
-                });
-                state.resetUser = u;
-                showStep('forgot-reset')
-            } catch (e) {
-                text('forgotVerifyMsg', e.message)
-            } finally {
-                setBusy(button, false)
-            }
-        }
-        async function resetPassword() {
-            const p = newPassword.value
-                , c = confirmPassword.value
-                , button = (document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null);
-            if (p.length < 8)
-                return err('newPassword', 'forgotResetMsg', '新密码至少需要 8 个字符');
-            if (p !== c)
-                return err('confirmPassword', 'forgotResetMsg', '两次输入的密码不一致');
-            setBusy(button, true, '正在修改…');
-            try {
-                await api('/api/password/reset', {
-                    username: state.resetUser,
-                    name: forgotName.value.trim(),
-                    new_password: p
-                });
-                ok('forgotResetMsg', '密码已修改，正在返回登录…');
-                setTimeout(() => {
-                    state.username = state.resetUser;
-                    loginUsername.value = state.resetUser;
-                    setChip({
-                        name: forgotName.value.trim(),
-                        username: state.resetUser
-                    });
-                    showStep('login-pass')
-                }
-                    , 600)
-            } catch (e) {
-                text('forgotResetMsg', e.message)
-            } finally {
-                setBusy(button, false)
-            }
-        }
-        ['loginUsername', 'loginPassword', 'regName', 'regYear', 'regDay', 'regUsername', 'regPassword', 'regInvite', 'forgotUsername', 'forgotName', 'newPassword', 'confirmPassword'].forEach(id => document.getElementById(id).addEventListener('input', e => {
-            e.target.closest('.field')?.classList.remove('error');
-            document.querySelectorAll('.message').forEach(x => {
-                x.textContent = '';
-                x.classList.remove('success')
-            }
-            )
-        }
-        ));
-        loginUsername.addEventListener('keydown', e => e.key === 'Enter' && nextLogin());
-        loginPassword.addEventListener('keydown', e => e.key === 'Enter' && login());
-        renderAccounts();
-    </script>
-    <script src="/Static/js/jquery.js"></script>
-    <script src="/Static/js/Global.js"></script>
-    <script src="/Web/js/Global.js"></script>
-    <script src="/Web/js/SoruxGPT.js"></script>
-</body>
 
+    <main class="card">
+      <section class="left">
+        <div class="site-logo" id="siteLogo">
+          <svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+              <linearGradient id="orangeBodyMain" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#FFB52B"/><stop offset="1" stop-color="#FF7A00"/>
+              </linearGradient>
+              <linearGradient id="orangeLeafMain" x1="34" y1="5" x2="49" y2="20" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#68C65A"/><stop offset="1" stop-color="#2E9B45"/>
+              </linearGradient>
+            </defs>
+            <circle cx="31" cy="35" r="21" fill="url(#orangeBodyMain)"/>
+            <path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+            <path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeafMain)"/>
+            <path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7"/>
+          </svg>
+        </div>
+        <h1 id="title">登录</h1>
+        <p class="subtitle" id="subtitle">使用您的账号继续</p>
+        <button class="user-chip" id="userChip" type="button" onclick="showStep('login-id')">
+          <span class="avatar" id="chipAvatar">用</span>
+          <span class="chip-text" id="chipText"></span>
+        </button>
+      </section>
+
+      <section class="right">
+        <div class="step active" id="account-chooser">
+          <div>
+            <div class="account-list" id="accountList"></div>
+            <button class="other-account" type="button" onclick="showStep('login-id')">
+              <span class="account-avatar other">＋</span>
+              <span>使用其他账号</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="step" id="login-id">
+          <div>
+            <div class="field">
+              <input id="loginUsername" placeholder=" " autocomplete="username" />
+              <label>用户名</label>
+            </div>
+            <div class="message" id="loginIdMsg"></div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-text" type="button" onclick="startRegister()">创建账号</button>
+            <button class="btn btn-primary" type="button" onclick="nextLogin()">下一步</button>
+          </div>
+        </div>
+
+        <div class="step" id="login-pass">
+          <div>
+            <div class="field">
+              <input id="loginPassword" type="password" placeholder=" " autocomplete="current-password" />
+              <label>输入密码</label>
+            </div>
+            <div class="message" id="loginPassMsg"></div>
+            <label class="check"><input type="checkbox" onchange="togglePassword('loginPassword', this.checked)" />显示密码</label>
+          </div>
+          <div class="actions">
+            <button class="btn btn-text" type="button" onclick="startForgot()">忘记密码？</button>
+            <button class="btn btn-primary" type="button" onclick="login()">登录</button>
+          </div>
+        </div>
+
+        <div class="step" id="reg-name">
+          <div>
+            <div class="field"><input id="regName" placeholder=" " /><label>姓名</label></div>
+            <div class="message" id="regNameMsg"></div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-text" type="button" onclick="showStep('login-id')">返回登录</button>
+            <button class="btn btn-primary" type="button" onclick="regNameNext()">下一步</button>
+          </div>
+        </div>
+
+        <div class="step" id="reg-birthday">
+          <div>
+            <div class="row">
+              <div class="field"><input id="regYear" inputmode="numeric" maxlength="4" placeholder=" " /><label>年</label></div>
+              <div class="select-wrap">
+                <span class="select-label">月</span>
+                <button class="select-button" id="monthButton" type="button" onclick="toggleSelect('month')"><span id="monthText"></span><span class="arrow"></span></button>
+                <div class="select-menu" id="monthMenu"></div>
+              </div>
+              <div class="field"><input id="regDay" inputmode="numeric" maxlength="2" placeholder=" " /><label>日</label></div>
+            </div>
+            <div class="select-wrap select-spacer">
+              <span class="select-label">性别</span>
+              <button class="select-button" id="genderButton" type="button" onclick="toggleSelect('gender')"><span id="genderText">请选择</span><span class="arrow"></span></button>
+              <div class="select-menu" id="genderMenu"></div>
+            </div>
+            <div class="message" id="birthdayMsg"></div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-text" type="button" onclick="showStep('reg-name')">上一步</button>
+            <button class="btn btn-primary" type="button" onclick="birthdayNext()">下一步</button>
+          </div>
+        </div>
+
+        <div class="step" id="reg-credentials">
+          <div>
+            <div class="field"><input id="regUsername" placeholder=" " /><label>用户名</label></div>
+            <div class="hint">可使用字母、数字、下划线和句点</div>
+            <div class="field"><input id="regPassword" type="password" placeholder=" " /><label>密码</label></div>
+            <div class="field"><input id="regInvite" placeholder=" " /><label>邀请码</label></div>
+            <div class="message" id="regCredMsg"></div>
+            <label class="check"><input type="checkbox" onchange="togglePassword('regPassword', this.checked)" />显示密码</label>
+          </div>
+          <div class="actions">
+            <button class="btn btn-text" type="button" onclick="showStep('reg-birthday')">上一步</button>
+            <button class="btn btn-primary" type="button" onclick="registerAccount()">注册</button>
+          </div>
+        </div>
+
+        <div class="step" id="forgot-verify">
+          <div>
+            <div class="field"><input id="forgotUsername" placeholder=" " /><label>用户名</label></div>
+            <div class="field"><input id="forgotName" placeholder=" " /><label>姓名</label></div>
+            <div class="message" id="forgotVerifyMsg"></div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-text" type="button" onclick="showStep('login-id')">返回登录</button>
+            <button class="btn btn-primary" type="button" onclick="verifyForgot()">下一步</button>
+          </div>
+        </div>
+
+        <div class="step" id="forgot-reset">
+          <div>
+            <div class="field"><input id="newPassword" type="password" placeholder=" " /><label>新密码</label></div>
+            <div class="field"><input id="confirmPassword" type="password" placeholder=" " /><label>确认新密码</label></div>
+            <div class="message" id="forgotResetMsg"></div>
+            <label class="check"><input type="checkbox" onchange="toggleReset(this.checked)" />显示密码</label>
+          </div>
+          <div class="actions">
+            <button class="btn btn-text" type="button" onclick="showStep('forgot-verify')">上一步</button>
+            <button class="btn btn-primary" type="button" onclick="resetPassword()">确认修改</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = { username: '', month: '', gender: '', resetUser: '' };
+    const qs = new URLSearchParams(location.search);
+    const returnUrl = qs.get('from') || '';
+    let derivedSite = '子网站', derivedIcon = '';
+
+    try {
+      if (returnUrl) {
+        const u = new URL(returnUrl);
+        derivedSite = u.hostname;
+        derivedIcon = u.origin + '/favicon.ico';
+      }
+    } catch {}
+
+    const siteName = (qs.get('site') || derivedSite).slice(0, 60);
+    const siteIcon = qs.get('icon') || derivedIcon;
+    const orangeIcon = `<svg class="orange-icon" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="orangeBodyFallback" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#FFB52B"/><stop offset="1" stop-color="#FF7A00"/></linearGradient><linearGradient id="orangeLeafFallback" x1="34" y1="5" x2="49" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#68C65A"/><stop offset="1" stop-color="#2E9B45"/></linearGradient></defs><circle cx="31" cy="35" r="21" fill="url(#orangeBodyFallback)"/><path d="M20 25c4-7 12-10 20-7" fill="none" stroke="#FFD277" stroke-width="4" stroke-linecap="round" opacity=".85"/><path d="M32 15c2-7 7-11 15-11-1 8-6 13-15 15Z" fill="url(#orangeLeafFallback)"/><path d="M31 17c0-5 2-9 6-12" fill="none" stroke="#4B8F3A" stroke-width="3" stroke-linecap="round"/><circle cx="18" cy="34" r="3" fill="#FFD98C" opacity=".7"/></svg>`;
+
+    const $ = id => document.getElementById(id);
+    const text = (id, value) => { $(id).textContent = value; };
+
+    text('topText', `登录到 ${siteName}`);
+    text('subtitle', `使用您的账号继续访问 ${siteName}`);
+
+    if (siteIcon && /^https?:\/\//i.test(siteIcon)) {
+      ['siteLogo', 'topMark'].forEach(id => {
+        const el = $(id);
+        const img = document.createElement('img');
+        img.src = siteIcon;
+        img.alt = siteName;
+        img.referrerPolicy = 'no-referrer';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
+        img.onerror = () => { el.innerHTML = orangeIcon; };
+        el.textContent = '';
+        el.appendChild(img);
+      });
+    }
+
+    const steps = {
+      'account-chooser': ['选择账号', `继续访问 ${siteName}`, false],
+      'login-id': ['登录', `使用您的账号继续访问 ${siteName}`, false],
+      'login-pass': ['欢迎回来', '', true],
+      'reg-name': ['创建 Orange 账号', '输入您的姓名', false],
+      'reg-birthday': ['基本信息', '输入您的生日和性别', false],
+      'reg-credentials': ['选择登录方式', '设置您的用户名、密码和邀请码', false],
+      'forgot-verify': ['找回密码', '输入用户名和姓名验证身份', false],
+      'forgot-reset': ['重置密码', '设置一个新密码', false]
+    };
+
+    function showStep(id) {
+      document.querySelectorAll('.step').forEach(x => x.classList.remove('active'));
+      $(id).classList.add('active');
+      const [title, subtitle, showChip] = steps[id];
+      text('title', title);
+      text('subtitle', subtitle);
+      $('subtitle').style.display = subtitle ? 'block' : 'none';
+      $('userChip').style.display = showChip ? 'flex' : 'none';
+      clearMessages();
+      if (id === 'login-id') setTimeout(() => $('loginUsername').focus(), 50);
+    }
+
+    function clearMessages() {
+      document.querySelectorAll('.message').forEach(x => {
+        x.textContent = '';
+        x.classList.remove('success');
+      });
+      document.querySelectorAll('.field').forEach(x => x.classList.remove('error'));
+    }
+
+    function err(inputId, msgId, msg) {
+      $(inputId)?.closest('.field')?.classList.add('error');
+      text(msgId, msg);
+    }
+
+    function ok(msgId, msg) {
+      const el = $(msgId);
+      el.textContent = msg;
+      el.classList.add('success');
+    }
+
+    function setBusy(button, busy, label = '处理中…') {
+      if (!button) return;
+      button.disabled = busy;
+      if (busy) {
+        button.dataset.oldText = button.textContent;
+        button.textContent = label;
+      } else if (button.dataset.oldText) {
+        button.textContent = button.dataset.oldText;
+      }
+    }
+
+    async function api(path, body) {
+      const response = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body)
+      });
+      let data = {};
+      try { data = await response.json(); } catch {}
+      if (!response.ok || data.success === false) throw new Error(data.message || `请求失败（${response.status}）`);
+      return data;
+    }
+
+    function togglePassword(id, on) { $(id).type = on ? 'text' : 'password'; }
+    function toggleReset(on) { togglePassword('newPassword', on); togglePassword('confirmPassword', on); }
+
+    function accounts() {
+      try { return JSON.parse(localStorage.getItem('orange_account_history') || '[]'); }
+      catch { return []; }
+    }
+
+    function saveAccount(account) {
+      const data = accounts().filter(x => x.username !== account.username);
+      data.unshift({ username: account.username, name: account.name || account.username });
+      localStorage.setItem('orange_account_history', JSON.stringify(data.slice(0, 8)));
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[c]));
+    }
+
+    function renderAccounts() {
+      const list = $('accountList');
+      const data = accounts();
+      list.innerHTML = '';
+
+      if (!data.length) {
+        showStep('login-id');
+        return;
+      }
+
+      data.forEach(account => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'account-item';
+        button.innerHTML = `
+          <span class="account-avatar">${escapeHtml((account.name || account.username).slice(0, 1) || '用')}</span>
+          <span class="account-main">
+            <span class="account-name">${escapeHtml(account.name || account.username)}</span>
+            <span class="account-id">${escapeHtml(account.username)}</span>
+          </span>`;
+        button.onclick = () => {
+          $('loginUsername').value = account.username;
+          state.username = account.username;
+          setChip(account);
+          showStep('login-pass');
+        };
+        list.appendChild(button);
+      });
+    }
+
+    function setChip(account) {
+      text('chipText', account.username);
+      text('chipAvatar', (account.name || account.username).slice(0, 1));
+    }
+
+    function nextLogin() {
+      const username = $('loginUsername').value.trim();
+      if (!username) return err('loginUsername', 'loginIdMsg', '请输入用户名');
+      state.username = username;
+      const account = accounts().find(x => x.username === username);
+      setChip(account || { name: username, username });
+      showStep('login-pass');
+    }
+
+    async function login() {
+      const password = $('loginPassword').value;
+      const button = document.activeElement?.tagName === 'BUTTON' ? document.activeElement : null;
+      if (!password) return err('loginPassword', 'loginPassMsg', '请输入密码');
+      setBusy(button, true, '正在登录…');
+      try {
+        const data = await api('/api/login', { username: state.username, password, remember: true });
+        saveAccount({ username: state.username, name: data.name || data.nickname || state.username });
+        ok('loginPassMsg', '登录成功，正在跳转…');
+        setTimeout(() => {
+          location.href = returnUrl && /^https?:\/\//i.test(returnUrl) ? returnUrl : '/';
+        }, 500);
+      } catch (e) {
+        err('loginPassword', 'loginPassMsg', e.message);
+      } finally {
+        setBusy(button, false);
+      }
+    }
+
+    function startRegister() { $('regName').value = ''; showStep('reg-name'); }
+    function regNameNext() {
+      if (!$('regName').value.trim()) return err('regName', 'regNameMsg', '请输入姓名');
+      showStep('reg-birthday');
+    }
+
+    function closeSelects() {
+      ['month', 'gender'].forEach(kind => {
+        $(kind + 'Button').classList.remove('open');
+        $(kind + 'Menu').classList.remove('open');
+      });
+    }
+
+    function toggleSelect(kind) {
+      const button = $(kind + 'Button');
+      const menu = $(kind + 'Menu');
+      const willOpen = !menu.classList.contains('open');
+      closeSelects();
+      if (willOpen) {
+        button.classList.add('open');
+        menu.classList.add('open');
+      }
+    }
+
+    const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+    monthNames.forEach((name, index) => {
+      const option = document.createElement('div');
+      option.className = 'option';
+      option.textContent = name;
+      option.onclick = () => {
+        state.month = index + 1;
+        text('monthText', name);
+        $('monthMenu').querySelectorAll('.option').forEach(x => x.classList.remove('selected'));
+        option.classList.add('selected');
+        closeSelects();
+      };
+      $('monthMenu').appendChild(option);
+    });
+
+    [['male', '男性'], ['female', '女性'], ['custom', '自定义'], ['none', '不愿透露']].forEach(([value, label]) => {
+      const option = document.createElement('div');
+      option.className = 'option';
+      option.textContent = label;
+      option.onclick = () => {
+        state.gender = value;
+        text('genderText', label);
+        $('genderMenu').querySelectorAll('.option').forEach(x => x.classList.remove('selected'));
+        option.classList.add('selected');
+        closeSelects();
+      };
+      $('genderMenu').appendChild(option);
+    });
+
+    document.addEventListener('click', event => {
+      if (!event.target.closest('.select-wrap')) closeSelects();
+    });
+
+    function birthdayNext() {
+      const year = +$('regYear').value;
+      const day = +$('regDay').value;
+      if (!/^\d{4}$/.test($('regYear').value) || year < 1900 || year > new Date().getFullYear())
+        return err('regYear', 'birthdayMsg', '请输入有效年份');
+      if (!state.month) return text('birthdayMsg', '请选择月份');
+      const max = new Date(year, state.month, 0).getDate();
+      if (day < 1 || day > max) return err('regDay', 'birthdayMsg', '请输入有效日期');
+      if (!state.gender) return text('birthdayMsg', '请选择性别');
+      showStep('reg-credentials');
+    }
+
+    async function registerAccount() {
+      const name = $('regName').value.trim();
+      const username = $('regUsername').value.trim();
+      const password = $('regPassword').value;
+      const inviteCode = $('regInvite').value.trim();
+      const button = document.activeElement?.tagName === 'BUTTON' ? document.activeElement : null;
+
+      if (!/^[A-Za-z0-9._]{3,32}$/.test(username))
+        return err('regUsername', 'regCredMsg', '用户名需为 3–32 位字母、数字、下划线或句点');
+      if (password.length < 8) return err('regPassword', 'regCredMsg', '密码至少需要 8 个字符');
+      if (!inviteCode) return err('regInvite', 'regCredMsg', '请输入邀请码');
+
+      setBusy(button, true, '正在注册…');
+      try {
+        await api('/api/register', {
+          name,
+          username,
+          password,
+          invite_code: inviteCode,
+          birthday: `${$('regYear').value}-${String(state.month).padStart(2, '0')}-${String($('regDay').value).padStart(2, '0')}`,
+          gender: state.gender
+        });
+        saveAccount({ name, username });
+        ok('regCredMsg', '注册成功，正在进入登录…');
+        setTimeout(() => {
+          $('loginUsername').value = username;
+          state.username = username;
+          setChip({ name, username });
+          showStep('login-pass');
+        }, 600);
+      } catch (e) {
+        err(e.message.includes('用户') ? 'regUsername' : 'regInvite', 'regCredMsg', e.message);
+      } finally {
+        setBusy(button, false);
+      }
+    }
+
+    function startForgot() {
+      $('forgotUsername').value = state.username;
+      $('forgotName').value = '';
+      showStep('forgot-verify');
+    }
+
+    async function verifyForgot() {
+      const username = $('forgotUsername').value.trim();
+      const name = $('forgotName').value.trim();
+      const button = document.activeElement?.tagName === 'BUTTON' ? document.activeElement : null;
+      if (!username) return err('forgotUsername', 'forgotVerifyMsg', '请输入用户名');
+      if (!name) return err('forgotName', 'forgotVerifyMsg', '请输入姓名');
+      setBusy(button, true, '正在验证…');
+      try {
+        await api('/api/password/verify', { username, name });
+        state.resetUser = username;
+        showStep('forgot-reset');
+      } catch (e) {
+        text('forgotVerifyMsg', e.message);
+      } finally {
+        setBusy(button, false);
+      }
+    }
+
+    async function resetPassword() {
+      const password = $('newPassword').value;
+      const confirmPassword = $('confirmPassword').value;
+      const button = document.activeElement?.tagName === 'BUTTON' ? document.activeElement : null;
+      if (password.length < 8) return err('newPassword', 'forgotResetMsg', '新密码至少需要 8 个字符');
+      if (password !== confirmPassword) return err('confirmPassword', 'forgotResetMsg', '两次输入的密码不一致');
+      setBusy(button, true, '正在修改…');
+      try {
+        await api('/api/password/reset', {
+          username: state.resetUser,
+          name: $('forgotName').value.trim(),
+          new_password: password
+        });
+        ok('forgotResetMsg', '密码已修改，正在返回登录…');
+        setTimeout(() => {
+          state.username = state.resetUser;
+          $('loginUsername').value = state.resetUser;
+          setChip({ name: $('forgotName').value.trim(), username: state.resetUser });
+          showStep('login-pass');
+        }, 600);
+      } catch (e) {
+        text('forgotResetMsg', e.message);
+      } finally {
+        setBusy(button, false);
+      }
+    }
+
+    [
+      'loginUsername', 'loginPassword', 'regName', 'regYear', 'regDay',
+      'regUsername', 'regPassword', 'regInvite', 'forgotUsername',
+      'forgotName', 'newPassword', 'confirmPassword'
+    ].forEach(id => $(id).addEventListener('input', event => {
+      event.target.closest('.field')?.classList.remove('error');
+      document.querySelectorAll('.message').forEach(x => {
+        x.textContent = '';
+        x.classList.remove('success');
+      });
+    }));
+
+    $('loginUsername').addEventListener('keydown', event => event.key === 'Enter' && nextLogin());
+    $('loginPassword').addEventListener('keydown', event => event.key === 'Enter' && login());
+
+    renderAccounts();
+  </script>
+<script src="/Static/js/jquery.js"></script><script src="/Static/js/Global.js"></script><script src="/Web/js/Global.js"></script><script src="/Web/js/SoruxGPT.js"></script></body>
 </html>
