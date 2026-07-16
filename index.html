@@ -744,7 +744,7 @@
       setBusy(button, true, '正在登录…');
       try {
         const data = await api('/api/login', { username: state.username, password, remember: true });
-        saveAccount({ username: state.username, name: data.name || data.nickname || state.username });
+        saveAccount({ username: state.username, name: data.name || state.username });
         ok('loginPassMsg', '登录成功，正在跳转…');
         setTimeout(() => {
           location.href = returnUrl && /^https?:\/\//i.test(returnUrl) ? returnUrl : '/';
